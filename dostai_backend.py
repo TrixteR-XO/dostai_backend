@@ -16,7 +16,7 @@ app.add_middleware(
 
 # Together AI API endpoint
 AI_API_URL = "https://api.together.xyz/v1/chat/completions"
-API_KEY = "your-together-ai-key"  # Replace with your API key
+API_KEY = "1bbc7f2b996179192d0a5a7f16a90bd94c0dc8cd0b222080a621049f6dbdd690"  
 
 class ChatRequest(BaseModel):
     message: str
