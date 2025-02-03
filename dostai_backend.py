@@ -25,9 +25,13 @@ class ChatRequest(BaseModel):
 async def chat(request: ChatRequest):
     headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
     data = {
-        "model": "mistralai/Mistral-7B-Instruct-v0.1",
-        "messages": [{"role": "user", "content": request.message}]
-    }
+    "model": "mistralai/Mistral-7B-Instruct-v0.1",
+    "messages": [
+        {"role": "system", "content": "You are dostAI, a helpful AI assistant developed by Likhit. You must always introduce yourself as dostAI and never refer to yourself as Mistral 7B or any other name. You are still in prototype mode but aim to provide accurate and helpful responses."},
+        {"role": "user", "content": request.message}
+    ]
+}
+
 
     try:
         response = requests.post(AI_API_URL, json=data, headers=headers)
