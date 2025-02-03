@@ -1,22 +1,22 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import requests
 from fastapi.middleware.cors import CORSMiddleware
 
-import requests
-
 app = FastAPI()
+
+# Add CORS Middleware to allow frontend requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows requests from all frontend origins
+    allow_origins=["*"],  # Allow all origins (Change this for security if needed)
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all HTTP methods (POST, GET, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
 
 # Together AI API endpoint
 AI_API_URL = "https://api.together.xyz/v1/chat/completions"
-API_KEY = "1bbc7f2b996179192d0a5a7f16a90bd94c0dc8cd0b222080a621049f6dbdd690"
+API_KEY = "your-together-ai-key"  # Replace with your API key
 
 class ChatRequest(BaseModel):
     message: str
@@ -25,19 +25,21 @@ class ChatRequest(BaseModel):
 async def chat(request: ChatRequest):
     headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
     data = {
-    "model": "mistralai/Mistral-7B-Instruct-v0.1",
-    "messages": [
-        {"role": "system", "content": "You are dostAI, a helpful AI assistant for india developed by Likhit. You are still in prototype mode, but you aim to provide accurate and helpful responses."},
-        {"role": "user", "content": request.message}
-    ]
-}
-
-
+        "model": "mistralai/Mistral-7B-Instruct-v0.1",
+        "messages": [{"role": "user", "content": request.message}]
+    }
 
     try:
         response = requests.post(AI_API_URL, json=data, headers=headers)
         response_json = response.json()
-        reply = response_json.get("choices", [{}])[0].get("message", {}).get("content", "Sorry, I couldn't understand that.")
+        
+        # Handle potential API response errors
+        if "choices" in response_json and response_json["choices"]:
+            reply = response_json["choices"][0].get("message", {}).get("content", "Sorry, I couldn't understand that.")
+        else:
+            reply = "Sorry, I couldn't understand that."
+
         return {"reply": reply}
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
